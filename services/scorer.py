@@ -46,17 +46,3 @@ REASON: [one short sentence]"""
         "confidence": confidence,
         "reason": reason
     }
-
-if __name__ == "__main__":
-    test_headlines = [
-        "Zomato reports record quarterly revenue, beats analyst expectations",
-        "Zomato faces backlash over delivery partner working conditions",
-        "Zomato launches new subscription plan for frequent users"
-    ]
-
-    for headline in test_headlines:
-        result = score_sentiment(headline, "Zomato")
-        print(f"\nHeadline: {headline}")
-        print(f"Sentiment: {result['sentiment']}")
-        print(f"Confidence: {result['confidence']}")
-        print(f"Reason: {result['reason']}")

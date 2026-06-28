@@ -31,9 +31,3 @@ def fetch_headlines(company, page_size=10):
                 "published_at": article.get("publishedAt", "")
             })
     return articles
-
-if __name__ == "__main__":
-    results = fetch_headlines("Zomato")
-    print(f"Fetched {len(results)} headlines\n")
-    for r in results:
-        print(f"[{r['source']}] {r['headline']}")

@@ -7,7 +7,7 @@ logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 app = FastAPI(
-    title="Brand Sentiment Monitor API",
+    title="Pulse — Brand Sentiment API",
     description="Real-time brand sentiment monitoring using LLM scoring",
     version="1.0.0"
 )
@@ -16,7 +16,7 @@ init_db()
 
 @app.get("/")
 def home():
-    return {"message": "Brand Sentiment Monitor is running"}
+    return {"message": "Pulse Brand Sentiment Monitor is running"}
 
 @app.get("/health")
 def health():
@@ -56,8 +56,6 @@ def get_sentiment(company: str, limit: int = 20):
             "scored_at": row[5]
         })
 
-    response_time = round((time.time() - start) * 1000, 2)
-
     return {
         "company": company,
         "sentiment_score": score,
@@ -66,7 +64,7 @@ def get_sentiment(company: str, limit: int = 20):
         "negative": negative,
         "neutral": neutral,
         "headlines": results,
-        "response_time_ms": response_time
+        "response_time_ms": round((time.time() - start) * 1000, 2)
     }
 
 @app.get("/companies")

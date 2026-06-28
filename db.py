@@ -20,7 +20,6 @@ def init_db():
     """)
     conn.commit()
     conn.close()
-    print("Database initialised")
 
 def insert_headline(company, headline, source, published_at, sentiment, confidence, scored_at):
     conn = sqlite3.connect(DB_PATH)
@@ -60,6 +59,3 @@ def get_companies():
     rows = conn.execute("SELECT DISTINCT company FROM headlines").fetchall()
     conn.close()
     return [r[0] for r in rows]
-
-if __name__ == "__main__":
-    init_db()

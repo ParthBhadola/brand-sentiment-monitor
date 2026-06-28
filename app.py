@@ -3,7 +3,10 @@ import time
 import matplotlib
 matplotlib.use("Agg")
 import matplotlib.pyplot as plt
-from db import get_recent, get_sentiment_counts, get_companies
+from db import get_recent, get_sentiment_counts, get_companies, init_db
+from services.worker import process_company
+
+init_db()
 
 st.set_page_config(
     page_title="Pulse — Brand Sentiment",
@@ -52,9 +55,7 @@ st.markdown("""
         margin-bottom: 0.6rem;
     }
 
-    .score-block {
-        padding: 0.4rem 0;
-    }
+    .score-block { padding: 0.4rem 0; }
 
     .score-number {
         font-size: 3rem;
@@ -117,20 +118,9 @@ st.markdown("""
         text-transform: uppercase;
     }
 
-    .pill-positive {
-        background: #052e16;
-        color: #34d399;
-    }
-
-    .pill-negative {
-        background: #2d1515;
-        color: #f87171;
-    }
-
-    .pill-neutral {
-        background: #1f2937;
-        color: #6b7280;
-    }
+    .pill-positive { background: #052e16; color: #34d399; }
+    .pill-negative { background: #2d1515; color: #f87171; }
+    .pill-neutral { background: #1f2937; color: #6b7280; }
 
     .sidebar-label {
         font-size: 0.72rem;
@@ -138,6 +128,14 @@ st.markdown("""
         text-transform: uppercase;
         letter-spacing: 0.08em;
         margin-bottom: 0.4rem;
+    }
+
+    div[data-testid="stTextInput"] input {
+        background: #111827 !important;
+        border: 1px solid #1f2937 !important;
+        border-radius: 6px !important;
+        color: #e8eaf0 !important;
+        font-size: 0.88rem !important;
     }
 
     div[data-testid="stSelectbox"] > div > div {
@@ -176,18 +174,37 @@ with col_left:
     st.markdown("<p class='app-sub'>Brand sentiment intelligence</p>", unsafe_allow_html=True)
     st.markdown("<hr class='divider'>", unsafe_allow_html=True)
 
+    st.markdown("<p class='sidebar-label'>Track a company</p>", unsafe_allow_html=True)
+    new_company = st.text_input("", placeholder="e.g. Tata Motors", label_visibility="collapsed")
+
+    if st.button("Fetch and Analyse", use_container_width=True):
+        if new_company.strip():
+            with st.spinner(f"Fetching headlines for {new_company}..."):
+                count = process_company(new_company.strip())
+            if count > 0:
+                st.success(f"Added {count} headlines")
+                st.rerun()
+            else:
+                st.info("No new headlines found")
+        else:
+            st.warning("Enter a company name")
+
+    st.markdown("<hr class='divider'>", unsafe_allow_html=True)
+
     companies = get_companies()
 
-    if not companies:
-        st.markdown("<p style='font-size:0.82rem;color:#4b5563;'>No data yet. Run the worker first.</p>", unsafe_allow_html=True)
+    if companies:
+        st.markdown("<p class='sidebar-label'>Select Company</p>", unsafe_allow_html=True)
+        selected = st.selectbox("", companies, label_visibility="collapsed")
+    else:
+        st.markdown("<p style='font-size:0.82rem;color:#4b5563;'>No data yet. Search for a company above.</p>", unsafe_allow_html=True)
         st.stop()
-
-    st.markdown("<p class='sidebar-label'>Company</p>", unsafe_allow_html=True)
-    selected = st.selectbox("", companies, label_visibility="collapsed")
+        selected = None
 
     st.markdown("<br>", unsafe_allow_html=True)
-    auto_refresh = st.checkbox("Auto-refresh", value=True)
-    st.button("↻  Refresh", use_container_width=True)
+    auto_refresh = st.checkbox("Auto-refresh", value=False)
+    if st.button("↻  Refresh", use_container_width=True):
+        st.rerun()
 
     st.markdown("<br><br>", unsafe_allow_html=True)
     st.markdown("<p style='font-size:0.7rem;color:#374151;'>Powered by Groq LLaMA · NewsAPI · SQLite</p>", unsafe_allow_html=True)
@@ -205,12 +222,9 @@ with col_right:
         else:
             score = 0
 
-        score_color = "#34d399" if score > 0 else "#f87171" if score < 0 else "#6b7280"
         score_class = "positive" if score > 0 else "negative" if score < 0 else "neutral"
 
-        st.markdown(f"""
-            <p class='section-label'>{selected} — Sentiment Overview</p>
-        """, unsafe_allow_html=True)
+        st.markdown(f"<p class='section-label'>{selected} — Sentiment Overview</p>", unsafe_allow_html=True)
 
         m1, m2, m3, m4 = st.columns([2, 1, 1, 1])
 
