@@ -1,0 +1,8 @@
+fastapi
+groq
+matplotlib
+python-dotenv
+requests
+schedule
+streamlit
+uvicorn
