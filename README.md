@@ -1,4 +1,4 @@
-# Pulse — Real-Time Brand Sentiment Monitor
+# Pulse - Real-Time Brand Sentiment Monitor
 
 Track how the news feels about Indian brands in real time.
 Headlines are fetched automatically, scored by an LLM and displayed on a live dashboard.
@@ -20,23 +20,23 @@ News API
 
 ↓
 
-services/fetcher.py — fetch latest headlines per company
+services/fetcher.py - fetch latest headlines per company
 
 ↓
 
-services/scorer.py — LLM scores each headline (Positive/Negative/Neutral)
+services/scorer.py - LLM scores each headline (Positive/Negative/Neutral)
 
 ↓
 
-db.py — store results in SQLite
+db.py - store results in SQLite
 
 ↓
 
-FastAPI — serve sentiment data as REST API
+FastAPI - serve sentiment data as REST API
 
 ↓
 
-Streamlit — live dashboard auto-refreshing every 30 seconds
+Streamlit - live dashboard auto-refreshing every 30 seconds
 
 ---
 
@@ -64,21 +64,21 @@ brand-sentiment-monitor/
 
 services/
 
-fetcher.py      — fetch headlines from NewsAPI
+fetcher.py      - fetch headlines from NewsAPI
 
-scorer.py       — LLM-based sentiment scoring
+scorer.py       - LLM-based sentiment scoring
 
-worker.py       — continuous pipeline runner
+worker.py       - continuous pipeline runner
 
-db.py               — SQLite database operations
+db.py               - SQLite database operations
 
-main.py             — FastAPI REST API
+main.py             - FastAPI REST API
 
-app.py              — Streamlit live dashboard
+app.py              - Streamlit live dashboard
 
-data/               — SQLite database (gitignored)
+data/               - SQLite database (gitignored)
 
-logs/               — pipeline logs (gitignored)
+logs/               - pipeline logs (gitignored)
 
 ---
 
@@ -92,12 +92,37 @@ cd brand-sentiment-monitor
 
 **2. Install dependencies**
 ```bash
-pip install fastapi uvicorn streamlit requests python-dotenv groq schedule
+pip install -r requirements.txt
 ```
 
 **3. Add API keys to .env**
-NEWS_API_KEY
-GROQ_API_KEY
+```dotenv
+NEWS_API_KEY=<newsapi key>
+GROQ_API_KEY=<groq key>
+```
+
+To score a reviewed Xquik or TweetClaw export instead of NewsAPI headlines,
+set `XQUIK_EXPORT_PATH` to a CSV, JSON, JSONL, or NDJSON file:
+
+```dotenv
+XQUIK_EXPORT_PATH=./exports/xquik-posts.csv
+```
+
+The importer reads common text fields such as `text`, `full_text`, `tweet`,
+`content`, or `headline`, then maps public author/source and timestamp fields
+into the same scoring pipeline.
+
+References:
+
+- Xquik REST API: <https://docs.xquik.com/api-reference/overview>
+- Xquik MCP: <https://docs.xquik.com/mcp/overview>
+- Xquik X data source: <https://github.com/Xquik-dev/x-twitter-scraper>
+
+Keep API keys and authorization headers out of export files.
+
+Xquik is an independent third-party service. Not affiliated with X Corp.
+"Twitter" and "X" are trademarks of X Corp.
+
 **4. Run the pipeline**
 ```bash
 python services/worker.py
@@ -130,7 +155,7 @@ uvicorn main:app --reload
 
 **Why LLM scoring over traditional sentiment analysis?**
 Traditional tools like VADER or TextBlob do keyword matching.
-They cannot understand context — "Zomato loses market share to Swiggy"
+They cannot understand context - "Zomato loses market share to Swiggy"
 would score neutral because no negative keywords exist.
 LLaMA understands the business implication and scores it negative correctly.
 

@@ -4,6 +4,7 @@ import matplotlib
 matplotlib.use("Agg")
 import matplotlib.pyplot as plt
 from db import get_recent, get_sentiment_counts, get_companies, init_db
+from services.presentation import escape_html, sentiment_class
 from services.worker import process_company
 
 init_db()
@@ -212,6 +213,7 @@ with col_left:
 with col_right:
     if selected:
         counts = get_sentiment_counts(selected)
+        selected_html = escape_html(selected)
         total = sum(counts.values())
         positive = counts.get("POSITIVE", 0)
         negative = counts.get("NEGATIVE", 0)
@@ -224,7 +226,7 @@ with col_right:
 
         score_class = "positive" if score > 0 else "negative" if score < 0 else "neutral"
 
-        st.markdown(f"<p class='section-label'>{selected} — Sentiment Overview</p>", unsafe_allow_html=True)
+        st.markdown(f"<p class='section-label'>{selected_html} — Sentiment Overview</p>", unsafe_allow_html=True)
 
         m1, m2, m3, m4 = st.columns([2, 1, 1, 1])
 
@@ -286,14 +288,18 @@ with col_right:
         headlines = get_recent(selected, limit=20)
         for row in headlines:
             headline, source, published_at, sentiment, confidence, scored_at = row
-            pill_class = f"pill-{sentiment.lower()}"
+            headline_html = escape_html(headline)
+            source_html = escape_html(source)
+            sentiment_html = escape_html(sentiment)
+            scored_at_html = escape_html(scored_at[:16])
+            pill_class = f"pill-{sentiment_class(sentiment)}"
             st.markdown(f"""
                 <div class='headline-item'>
-                    <p class='headline-text'>{headline}</p>
+                    <p class='headline-text'>{headline_html}</p>
                     <p class='headline-meta'>
-                        {source} &nbsp;·&nbsp;
-                        <span class='sentiment-pill {pill_class}'>{sentiment}</span>
-                        &nbsp;·&nbsp; {confidence:.0%} confidence &nbsp;·&nbsp; {scored_at[:16]}
+                        {source_html} &nbsp;·&nbsp;
+                        <span class='sentiment-pill {pill_class}'>{sentiment_html}</span>
+                        &nbsp;·&nbsp; {confidence:.0%} confidence &nbsp;·&nbsp; {scored_at_html}
                     </p>
                 </div>
             """, unsafe_allow_html=True)
