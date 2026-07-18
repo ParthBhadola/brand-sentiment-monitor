@@ -114,8 +114,14 @@ into the same scoring pipeline.
 
 References:
 
-- Xquik docs: <https://docs.xquik.com>
-- TweetClaw repository: <https://github.com/Xquik-dev/tweetclaw>
+- Xquik REST API: <https://docs.xquik.com/api-reference/overview>
+- Xquik MCP: <https://docs.xquik.com/mcp/overview>
+- Xquik X data source: <https://github.com/Xquik-dev/x-twitter-scraper>
+
+Keep API keys and authorization headers out of export files.
+
+Xquik is an independent third-party service. Not affiliated with X Corp.
+"Twitter" and "X" are trademarks of X Corp.
 
 **4. Run the pipeline**
 ```bash
